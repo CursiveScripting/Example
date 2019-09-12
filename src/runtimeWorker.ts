@@ -5,7 +5,7 @@ function postMsg(msg: string, payload?: any) {
     (self as any).postMessage([msg, payload]);
 }
 
-var workspace = new IntegerWorkspace();
+const workspace = new IntegerWorkspace();
 
 postMsg('init', saveWorkspace(workspace));
 

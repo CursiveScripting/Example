@@ -12,7 +12,7 @@ import RuntimeWorker from 'worker-loader!./runtimeWorker';
 function loadWorkspace() {
     // TODO: this should ideally come from the worker
     // rather than deserializing in the UI thread with a separate workspace instance
-    return saveWorkspace(new IntegerWorkspace());
+    return Promise.resolve(saveWorkspace(new IntegerWorkspace()));
 }
 
 const customTools: ICustomTool[] = [{
@@ -60,7 +60,7 @@ function createWorker() {
 
 createWorker();
 
-function runProcess() {
+async function runProcess() {
     const input = window.prompt('Provide an input number', '1');
     if (input === null) {
         return;
@@ -68,6 +68,7 @@ function runProcess() {
 
     const number = parseInt(input);
     
-    worker.postMessage(['load', loadProcesses()]);
+
+    worker.postMessage(['load', await loadProcesses()]);
     worker.postMessage(['run', number]);
 }
