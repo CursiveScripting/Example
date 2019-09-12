@@ -1,5 +1,4 @@
 import { IntegerWorkspace } from './IntegerWorkspace';
-import { saveWorkspace } from 'cursive-runtime/lib/services/saveWorkspace';
 
 function postMsg(msg: string, payload?: any) {
     (self as any).postMessage([msg, payload]);
@@ -7,7 +6,7 @@ function postMsg(msg: string, payload?: any) {
 
 const workspace = new IntegerWorkspace();
 
-postMsg('init', saveWorkspace(workspace));
+postMsg('init', workspace.saveWorkspace());
 
 self.onmessage = async (e: any) => {
     const data = e.data as [string, any];
