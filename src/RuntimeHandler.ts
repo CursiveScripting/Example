@@ -1,5 +1,3 @@
-/* eslint import/no-webpack-loader-syntax: off */
-import RuntimeWorker from 'worker-loader!./runtimeWorker';
 import { Workspace } from 'cursive-runtime';
 import { IUserProcessData, IWorkspaceData } from 'cursive-ui';
 
@@ -22,7 +20,7 @@ export class RuntimeHandler<TWorkspace extends Workspace> {
         TODO: if we can do without worker loader by creating the worker with an object url
         as its contents, then by all means let's do so. No need to eject create-react-app then!
         */
-        this.worker = new RuntimeWorker();
+        this.worker = new Worker(this.createUrl(workerContent));
 
         this.worker.onmessage = (m) => {
             const data = m.data as [string, any];
@@ -84,5 +82,32 @@ export class RuntimeHandler<TWorkspace extends Workspace> {
 
     private async postProcesses(processJson: IUserProcessData[]) {
         this.worker.postMessage(['load', processJson]);
+    }
+}
+
+const self = window;
+function workerContent() {
+    function postMsg(msg: string, payload?: any) {
+        (self as any).postMessage([msg, payload]);
+    }
+    
+    let workspace: Workspace;
+    
+    self.onmessage = async (e: any) => {
+        const data = e.data as [string, any];
+        const message = data[0];
+        const payload = data[1];
+    
+        if (message === 'init') {
+            workspace = eval(payload)();
+            postMsg('inited', workspace.saveWorkspace());
+        }
+        else if (message === 'load') {
+            workspace.loadUserProcesses(payload, true);
+        }
+        else if (message === 'run') {
+            const result = await payload(workspace);
+            postMsg('success', result);
+        }
     }
 }
