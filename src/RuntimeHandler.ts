@@ -1,19 +1,27 @@
 /* eslint import/no-webpack-loader-syntax: off */
 import RuntimeWorker from 'worker-loader!./runtimeWorker';
+import { Workspace } from 'cursive-runtime';
 import { IUserProcessData, IWorkspaceData } from 'cursive-web-ui/lib';
 
-export class RuntimeHandler {
+export class RuntimeHandler<TWorkspace extends Workspace> {
     private readonly worker: Worker;
 
     private loadPromise: Promise<IWorkspaceData>;
     private loadResolve?: (value: IWorkspaceData | PromiseLike<IWorkspaceData> | undefined) => void;
 
-    private runResolve?: (value: number | PromiseLike<number> | undefined) => void;
+    private runResolve?: (value: any | PromiseLike<any> | undefined) => void;
 
     constructor(
-        private loadProcessData: () => Promise<IUserProcessData[] | null>,
-        private saveProcessData: (data: IUserProcessData[]) => Promise<void>
+        createWorkspace: () => TWorkspace,
+        private readonly loadProcessData: () => Promise<IUserProcessData[] | null>,
+        private readonly saveProcessData: (data: IUserProcessData[]) => Promise<void>
     ) {
+        console.log(createWorkspace.toString());
+
+        /*
+        TODO: if we can do without worker loader by creating the worker with an object url
+        as its contents, then by all means let's do so. No need to eject create-react-app then!
+        */
         this.worker = new RuntimeWorker();
 
         this.worker.onmessage = (m) => {
@@ -21,7 +29,7 @@ export class RuntimeHandler {
             const message = data[0];
             const payload = data[1];
     
-            if (message === 'init') {
+            if (message === 'inited') {
                 if (this.loadResolve !== undefined) {
                     this.loadResolve(payload);
                     this.loadResolve = undefined;
@@ -33,13 +41,12 @@ export class RuntimeHandler {
                     this.runResolve = undefined;
                 }
             }
-            else if (message === 'error') {
-                alert(`Process error! ${payload}`);
-            }
             else {
                 alert(`Unexpected response message: ${message}`);
             }
         };
+
+        this.worker.postMessage(['init', createWorkspace.toString()]);
 
         this.loadPromise = new Promise<IWorkspaceData>(resolve => {
             this.loadResolve = resolve;
@@ -63,12 +70,16 @@ export class RuntimeHandler {
         this.postProcesses(processData);
     }
 
-    public run(input: number) {
-        this.worker.postMessage(['run', input]);
+    public run<TResult>(action: (workspace: TWorkspace) => Promise<TResult>) {
+        this.worker.postMessage(['run', action]);
 
-        return new Promise<number>(resolve => {
+        return new Promise<TResult>(resolve => {
             this.runResolve = resolve;
         });
+    }
+
+    private createUrl(forFunction: () => void) {
+        return URL.createObjectURL(new Blob([forFunction.toString()]));
     }
 
     private async postProcesses(processJson: IUserProcessData[]) {
