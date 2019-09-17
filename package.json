@@ -8,7 +8,7 @@
     "@types/react": "16.9.2",
     "@types/react-dom": "16.9.0",
     "cursive-runtime": "git+https://github.com/CursiveScripting/JsRuntime.git",
-    "cursive-web-ui": "git+https://github.com/CursiveScripting/WebUI.git",
+    "cursive-ui": "git+https://github.com/CursiveScripting/WebUI.git",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
     "react-scripts": "3.1.1",
