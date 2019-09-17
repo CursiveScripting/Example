@@ -1,4 +1,4 @@
-import { IUserProcessData } from 'cursive-web-ui/lib';
+import { IUserProcessData } from 'cursive-ui';
 
 export async function loadProcesses() {
   const saved = sessionStorage.getItem('saved');

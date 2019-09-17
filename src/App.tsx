@@ -1,7 +1,7 @@
 import * as React from 'react';
 import './App.css';
 import { loadProcesses, saveProcesses } from './saving';
-import CursiveUI, { ICustomTool, IUserProcessData } from 'cursive-web-ui/lib';
+import CursiveUI, { ICustomTool, IUserProcessData } from 'cursive-ui';
 import { RuntimeHandler } from './RuntimeHandler';
 import { IntegerWorkspace } from './IntegerWorkspace';
 

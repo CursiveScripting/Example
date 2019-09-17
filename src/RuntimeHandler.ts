@@ -1,7 +1,7 @@
 /* eslint import/no-webpack-loader-syntax: off */
 import RuntimeWorker from 'worker-loader!./runtimeWorker';
 import { Workspace } from 'cursive-runtime';
-import { IUserProcessData, IWorkspaceData } from 'cursive-web-ui/lib';
+import { IUserProcessData, IWorkspaceData } from 'cursive-ui';
 
 export class RuntimeHandler<TWorkspace extends Workspace> {
     private readonly worker: Worker;
