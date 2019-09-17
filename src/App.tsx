@@ -5,11 +5,7 @@ import CursiveUI, { ICustomTool, IUserProcessData } from 'cursive-web-ui/lib';
 import { RuntimeHandler } from './RuntimeHandler';
 import { IntegerWorkspace } from './IntegerWorkspace';
 
-const createWorkspace = () => {
-    return new IntegerWorkspace();
-}
-
-const handler = new RuntimeHandler(createWorkspace, loadProcesses, saveProcesses);
+const handler = new RuntimeHandler(new IntegerWorkspace(), loadProcesses, saveProcesses);
 
 const customTools: ICustomTool[] = [{
     prompt: 'Run Process',
