@@ -2,10 +2,9 @@ import * as React from 'react';
 import './App.css';
 import { loadProcesses, saveProcesses } from './saving';
 import CursiveUI, { ICustomTool, IUserProcessData } from 'cursive-web-ui/lib';
-import { RuntimeHandler } from './RuntimeHandler';
 import { IntegerWorkspace } from './IntegerWorkspace';
 
-const handler = new RuntimeHandler(new IntegerWorkspace(), loadProcesses, saveProcesses);
+const workspace = new IntegerWorkspace();
 
 const customTools: ICustomTool[] = [{
     prompt: 'Run Process',
@@ -17,12 +16,25 @@ const customTools: ICustomTool[] = [{
 export const App = () => (
     <CursiveUI
         className="fullScreen"
-        loadWorkspace={async () => handler.loadWorkspace()}
-        loadProcesses={async () => await handler.loadProcesses()}
-        saveProcesses={async (data: IUserProcessData[]) => await handler.saveProcesses(data)}
+        loadWorkspace={async () => workspace.saveWorkspace()}
+        loadProcesses={loadProcessData}
+        saveProcesses={saveProcessData}
         customTools={customTools}
     />
 );
+
+async function loadProcessData() {
+    const processData = await loadProcesses();
+    if (processData !== null) {
+        const errors = workspace.loadUserProcesses(processData, true)
+    }
+    return processData;
+}
+
+async function saveProcessData(data: IUserProcessData[]) {
+    await saveProcesses(data);
+    workspace.loadUserProcesses(data, true);
+}
 
 async function runProcess() {
     const input = window.prompt('Provide an input number', '1');
@@ -33,7 +45,7 @@ async function runProcess() {
 
     const number = parseInt(input);
     
-    const result = await handler.run(async workspace => await workspace.modifyNumber(number));
+    const result = await workspace.modifyNumber(number);
 
     alert(`Process complete! Result: ${result}`);
 }
