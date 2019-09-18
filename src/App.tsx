@@ -1,8 +1,9 @@
 import * as React from 'react';
 import './App.css';
-import { loadProcesses, saveProcesses } from './saving';
-import CursiveUI, { ICustomTool, IUserProcessData } from 'cursive-ui/lib';
+import CursiveUI, { ICustomTool, IUserProcessData } from 'cursive-ui';
 import { IntegerWorkspace } from './IntegerWorkspace';
+
+const processSessionKey = 'saved';
 
 const workspace = new IntegerWorkspace();
 
@@ -17,23 +18,32 @@ export const App = () => (
     <CursiveUI
         className="fullScreen"
         loadWorkspace={async () => workspace.saveWorkspace()}
-        loadProcesses={loadProcessData}
-        saveProcesses={saveProcessData}
+        loadProcesses={loadProcesses}
+        saveProcesses={saveProcesses}
         customTools={customTools}
     />
 );
 
-async function loadProcessData() {
-    const processData = await loadProcesses();
-    if (processData !== null) {
-        const errors = workspace.loadUserProcesses(processData, true)
+async function loadProcesses() {
+    const processJson = sessionStorage.getItem(processSessionKey);
+    
+    if (processJson === null) {
+        return null;
     }
+
+    const processData = JSON.parse(processJson) as IUserProcessData[];
+      
+    const errors = workspace.loadUserProcesses(processData, true)
+    
     return processData;
 }
 
-async function saveProcessData(data: IUserProcessData[]) {
-    await saveProcesses(data);
-    workspace.loadUserProcesses(data, true);
+async function saveProcesses(processData: IUserProcessData[]) {
+    const processJson = JSON.stringify(processData);
+
+    sessionStorage.setItem(processSessionKey, processJson);
+
+    workspace.loadUserProcesses(processData, true);
 }
 
 async function runProcess() {
