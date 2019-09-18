@@ -9,7 +9,7 @@ export class IntegerWorkspace extends Workspace {
       s => parseInt(s),
       undefined,
       undefined,
-      new RegExp('[0-9]+'),
+      new RegExp('^[0-9]+$'),
     );
 
     let add: SystemProcess;
