@@ -2,6 +2,7 @@ import * as React from 'react';
 import './App.css';
 import CursiveUI, { ICustomTool, IUserProcessData } from 'cursive-ui';
 import { IntegerWorkspace } from './IntegerWorkspace';
+import initialProcess from './initialProcess.json';
 
 const processSessionKey = 'saved';
 
@@ -25,13 +26,11 @@ export const App = () => (
 );
 
 async function loadProcesses() {
-    const processJson = sessionStorage.getItem(processSessionKey);
+    let processJson = sessionStorage.getItem(processSessionKey);
     
-    if (processJson === null) {
-        return null;
-    }
-
-    const processData = JSON.parse(processJson) as IUserProcessData[];
+    const processData = processJson === null
+        ? initialProcess as IUserProcessData[]
+        : JSON.parse(processJson) as IUserProcessData[];
       
     const errors = workspace.loadUserProcesses(processData, true)
     
