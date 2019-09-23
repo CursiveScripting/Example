@@ -12,7 +12,7 @@ export class RuntimeHandler<TWorkspace extends Workspace> {
     private runResolve?: (value: any | PromiseLike<any> | undefined) => void;
 
     constructor(
-        createWorkspace: () => TWorkspace,
+        createWorkspace: () => Promise<TWorkspace>,
         private readonly loadProcessData: () => Promise<IUserProcessData[] | null>,
         private readonly saveProcessData: (data: IUserProcessData[]) => Promise<void>
     ) {

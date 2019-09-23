@@ -4,6 +4,11 @@ function postMsg(msg: string, payload?: any) {
     (self as any).postMessage([msg, payload]);
 }
 
+const createWorkspaceDontUse = () => {
+    return import('./IntegerWorkspace')
+        .then(module => new module.IntegerWorkspace());
+}
+
 let workspace: Workspace;
 
 self.onmessage = async (e: any) => {
@@ -12,7 +17,15 @@ self.onmessage = async (e: any) => {
     const payload = data[1];
 
     if (message === 'init') {
-        workspace = eval(payload)();
+        const evaledPayload = eval(payload);
+
+        console.log('in worker', createWorkspaceDontUse.toString());
+
+        console.log('evalled payload', evaledPayload.toString());
+
+        console.log('raw payload', payload)
+        
+        workspace = await /*createWorkspace(); */evaledPayload();
         postMsg('inited', workspace.saveWorkspace());
     }
     else if (message === 'load') {

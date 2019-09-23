@@ -3,10 +3,10 @@ import './App.css';
 import { loadProcesses, saveProcesses } from './saving';
 import CursiveUI, { ICustomTool, IUserProcessData } from 'cursive-ui';
 import { RuntimeHandler } from './RuntimeHandler';
-import { IntegerWorkspace } from './IntegerWorkspace';
 
 const createWorkspace = () => {
-    return new IntegerWorkspace();
+    return import('./IntegerWorkspace')
+        .then(module => new module.IntegerWorkspace());
 }
 
 const handler = new RuntimeHandler(createWorkspace, loadProcesses, saveProcesses);
