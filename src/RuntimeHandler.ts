@@ -10,16 +10,10 @@ export class RuntimeHandler<TWorkspace extends Workspace> {
     private runResolve?: (value: any | PromiseLike<any> | undefined) => void;
 
     constructor(
-        createWorkspace: () => TWorkspace,
+        createWorkspace: () => Promise<TWorkspace>,
         private readonly loadProcessData: () => Promise<IUserProcessData[] | null>,
         private readonly saveProcessData: (data: IUserProcessData[]) => Promise<void>
     ) {
-        console.log(createWorkspace.toString());
-
-        /*
-        TODO: if we can do without worker loader by creating the worker with an object url
-        as its contents, then by all means let's do so. No need to eject create-react-app then!
-        */
         this.worker = new Worker(this.createUrl(workerContent));
 
         this.worker.onmessage = (m) => {
@@ -77,7 +71,12 @@ export class RuntimeHandler<TWorkspace extends Workspace> {
     }
 
     private createUrl(forFunction: () => void) {
-        return URL.createObjectURL(new Blob([forFunction.toString()]));
+        let strFunction = forFunction.toString();
+        const startIndex = strFunction.indexOf('{') + 1;
+        const endIndex = strFunction.lastIndexOf('}');
+        strFunction = strFunction.substring(startIndex, endIndex);
+
+        return URL.createObjectURL(new Blob([strFunction]));
     }
 
     private async postProcesses(processJson: IUserProcessData[]) {
@@ -90,6 +89,10 @@ function workerContent() {
     function postMsg(msg: string, payload?: any) {
         (self as any).postMessage([msg, payload]);
     }
+
+    const __webpack_require__ = require;
+    
+    const makeRequireAvailable = () => import('./emptyModule');
     
     let workspace: Workspace;
     
@@ -99,7 +102,7 @@ function workerContent() {
         const payload = data[1];
     
         if (message === 'init') {
-            workspace = eval(payload)();
+            workspace = await eval(payload)();
             postMsg('inited', workspace.saveWorkspace());
         }
         else if (message === 'load') {
