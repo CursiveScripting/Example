@@ -1,8 +1,11 @@
 import { Workspace } from 'cursive-runtime';
 
 function postMsg(msg: string, payload?: any) {
-    (self as any).postMessage([msg, payload]);
+    (postMessage as any)([msg, payload]);
 }
+
+
+const fakeImport = () => import('./emptyModule')
 
 const createWorkspaceDontUse = () => {
     return import('./IntegerWorkspace')
@@ -11,21 +14,22 @@ const createWorkspaceDontUse = () => {
 
 let workspace: Workspace;
 
-self.onmessage = async (e: any) => {
+onmessage = async e => {
     const data = e.data as [string, any];
     const message = data[0];
     const payload = data[1];
 
     if (message === 'init') {
+        console.log('worker received init')
+
         const evaledPayload = eval(payload);
 
         console.log('in worker', createWorkspaceDontUse.toString());
 
         console.log('evalled payload', evaledPayload.toString());
-
-        console.log('raw payload', payload)
         
-        workspace = await /*createWorkspace(); */evaledPayload();
+        //workspace = await createWorkspaceDontUse();
+        workspace = await evaledPayload();
         postMsg('inited', workspace.saveWorkspace());
     }
     else if (message === 'load') {

@@ -1,5 +1,4 @@
 /* eslint import/no-webpack-loader-syntax: off */
-import RuntimeWorker from 'worker-loader!./runtimeWorker';
 import { Workspace } from 'cursive-runtime';
 import { IUserProcessData, IWorkspaceData } from 'cursive-ui';
 
@@ -22,7 +21,7 @@ export class RuntimeHandler<TWorkspace extends Workspace> {
         TODO: if we can do without worker loader by creating the worker with an object url
         as its contents, then by all means let's do so. No need to eject create-react-app then!
         */
-        this.worker = new RuntimeWorker();
+        this.worker = new Worker('./runtimeWorker.ts', { type: 'module' });
 
         this.worker.onmessage = (m) => {
             const data = m.data as [string, any];
