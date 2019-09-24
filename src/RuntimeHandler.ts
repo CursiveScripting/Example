@@ -21,7 +21,7 @@ export class RuntimeHandler<TWorkspace extends Workspace> {
         TODO: if we can do without worker loader by creating the worker with an object url
         as its contents, then by all means let's do so. No need to eject create-react-app then!
         */
-        this.worker = new Worker('./runtimeWorker.ts', { type: 'module' });
+        this.worker = new Worker('./runtimeWorker.ts', { name: 'runtime', type: 'module' });
 
         this.worker.onmessage = (m) => {
             const data = m.data as [string, any];
