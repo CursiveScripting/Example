@@ -1,5 +1,6 @@
 import { Workspace } from 'cursive-runtime';
 import { IUserProcessData, IWorkspaceData } from 'cursive-ui';
+import { StructuredCloneable } from './StructuredCloneable';
 
 export class RuntimeHandler<TWorkspace extends Workspace> {
     private loadPromise: Promise<IWorkspaceData>;
@@ -58,16 +59,12 @@ export class RuntimeHandler<TWorkspace extends Workspace> {
         this.postProcesses(processData);
     }
 
-    public run<TResult>(action: (workspace: TWorkspace) => Promise<TResult>) {
-        this.worker.postMessage(['run', action.toString()]);
+    public run(operation: StructuredCloneable) {
+        this.worker.postMessage(['run', operation]);
 
-        return new Promise<TResult>(resolve => {
+        return new Promise<StructuredCloneable>(resolve => {
             this.runResolve = resolve;
         });
-    }
-
-    private createUrl(forFunction: () => void) {
-        return URL.createObjectURL(new Blob([forFunction.toString()]));
     }
 
     private async postProcesses(processJson: IUserProcessData[]) {

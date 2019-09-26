@@ -1,10 +1,12 @@
 import { Workspace } from 'cursive-runtime';
+import { StructuredCloneable } from './StructuredCloneable';
 
 function postMsg(msg: string, payload?: any) {
     (postMessage as any)([msg, payload]);
 }
 
 let workspace: Workspace | undefined;
+let runner: (workspace: Workspace, payload: any) => Promise<void | StructuredCloneable>;
 
 onmessage = async e => {
     if (workspace === undefined) {
@@ -22,12 +24,12 @@ onmessage = async e => {
         workspace.loadUserProcesses(payload, true);
     }
     else if (message === 'run') {
-        const runThis = eval(payload);
-        const result = await runThis(workspace);
+        const result = await runner(workspace, payload);
         postMsg('success', result);
     }
 }
 
-export function setupWorker(actualWorkspace: Workspace) {
+export function setupWorker<TWorkspace extends Workspace>(actualWorkspace: TWorkspace, workspaceRunner: (workspace: TWorkspace, payload: any) => Promise<void | StructuredCloneable>) {
     workspace = actualWorkspace;
+    runner = workspaceRunner as any;
 }

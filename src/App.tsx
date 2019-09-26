@@ -34,8 +34,7 @@ async function runProcess() {
 
     const number = parseInt(input);
     
-    // TODO: urgh, of course number isn't substituted in here. D'oh!
-    const result = await handler.run(async workspace => await workspace.modifyNumber(number));
+    const result = await handler.run(['modify number', number]);
 
     alert(`Process complete! Result: ${result}`);
 }
