@@ -9,6 +9,8 @@ const createWorkspace = () => {
         .then(module => new module.IntegerWorkspace());
 }
 
+createWorkspace();
+
 const handler = new RuntimeHandler(createWorkspace, loadProcesses, saveProcesses);
 
 const customTools: ICustomTool[] = [{
