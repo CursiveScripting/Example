@@ -1,28 +1,17 @@
-/* eslint import/no-webpack-loader-syntax: off */
 import { Workspace } from 'cursive-runtime';
 import { IUserProcessData, IWorkspaceData } from 'cursive-ui';
 
 export class RuntimeHandler<TWorkspace extends Workspace> {
-    private readonly worker: Worker;
-
     private loadPromise: Promise<IWorkspaceData>;
     private loadResolve?: (value: IWorkspaceData | PromiseLike<IWorkspaceData> | undefined) => void;
 
     private runResolve?: (value: any | PromiseLike<any> | undefined) => void;
 
     constructor(
-        createWorkspace: () => Promise<TWorkspace>,
+        private readonly worker: Worker,
         private readonly loadProcessData: () => Promise<IUserProcessData[] | null>,
         private readonly saveProcessData: (data: IUserProcessData[]) => Promise<void>
     ) {
-        console.log(createWorkspace.toString());
-
-        /*
-        TODO: if we can do without worker loader by creating the worker with an object url
-        as its contents, then by all means let's do so. No need to eject create-react-app then!
-        */
-        this.worker = new Worker('./runtimeWorker.ts', { name: 'runtime', type: 'module' });
-
         this.worker.onmessage = (m) => {
             const data = m.data as [string, any];
             const message = data[0];
@@ -45,7 +34,7 @@ export class RuntimeHandler<TWorkspace extends Workspace> {
             }
         };
 
-        this.worker.postMessage(['init', createWorkspace.toString()]);
+        this.worker.postMessage(['init']);
 
         this.loadPromise = new Promise<IWorkspaceData>(resolve => {
             this.loadResolve = resolve;
@@ -70,7 +59,7 @@ export class RuntimeHandler<TWorkspace extends Workspace> {
     }
 
     public run<TResult>(action: (workspace: TWorkspace) => Promise<TResult>) {
-        this.worker.postMessage(['run', action]);
+        this.worker.postMessage(['run', action.toString()]);
 
         return new Promise<TResult>(resolve => {
             this.runResolve = resolve;

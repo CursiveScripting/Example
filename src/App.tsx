@@ -3,13 +3,10 @@ import './App.css';
 import { loadProcesses, saveProcesses } from './saving';
 import CursiveUI, { ICustomTool, IUserProcessData } from 'cursive-ui';
 import { RuntimeHandler } from './RuntimeHandler';
+import { IntegerWorkspace } from './IntegerWorkspace';
 
-const createWorkspace = () => {
-    return import('./IntegerWorkspace')
-        .then(module => new module.IntegerWorkspace());
-}
-
-const handler = new RuntimeHandler(createWorkspace, loadProcesses, saveProcesses);
+const worker = new Worker('./workspaceWorker.ts', { name: 'runtime', type: 'module' });
+const handler = new RuntimeHandler<IntegerWorkspace>(worker, loadProcesses, saveProcesses);
 
 const customTools: ICustomTool[] = [{
     prompt: 'Run Process',
@@ -37,6 +34,7 @@ async function runProcess() {
 
     const number = parseInt(input);
     
+    // TODO: urgh, of course number isn't substituted in here. D'oh!
     const result = await handler.run(async workspace => await workspace.modifyNumber(number));
 
     alert(`Process complete! Result: ${result}`);
