@@ -3,10 +3,9 @@ import './App.css';
 import { loadProcesses, saveProcesses } from './saving';
 import CursiveUI, { ICustomTool, IUserProcessData } from 'cursive-ui';
 import { RuntimeHandler } from './RuntimeHandler';
-import { IntegerWorkspace } from './IntegerWorkspace';
 
 const worker = new Worker('./workspaceWorker.ts', { name: 'runtime', type: 'module' });
-const handler = new RuntimeHandler<IntegerWorkspace>(worker, loadProcesses, saveProcesses);
+const handler = new RuntimeHandler(worker, loadProcesses, saveProcesses);
 
 const customTools: ICustomTool[] = [{
     prompt: 'Run Process',
