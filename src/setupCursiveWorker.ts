@@ -10,7 +10,7 @@ let runner: (workspace: Workspace, payload: any) => Promise<void | StructuredClo
 
 onmessage = async e => {
     if (workspace === undefined) {
-        throw new Error('setupWorker has not been called for this worker');
+        throw new Error('setupCursiveWorker has not been called for this worker');
     }
 
     const data = e.data as [string, any];
@@ -29,7 +29,7 @@ onmessage = async e => {
     }
 }
 
-export function setupWorker<TWorkspace extends Workspace>(actualWorkspace: TWorkspace, workspaceRunner: (workspace: TWorkspace, payload: any) => Promise<void | StructuredCloneable>) {
+export function setupCursiveWorker<TWorkspace extends Workspace>(actualWorkspace: TWorkspace, workspaceRunner: (workspace: TWorkspace, payload: any) => Promise<void | StructuredCloneable>) {
     workspace = actualWorkspace;
     runner = workspaceRunner as any;
 }

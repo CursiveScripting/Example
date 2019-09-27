@@ -1,4 +1,4 @@
-import { setupWorker } from './setupWorker';
+import { setupCursiveWorker } from './setupCursiveWorker';
 import { IntegerWorkspace } from './IntegerWorkspace';
 
 async function runWorkspace(workspace: IntegerWorkspace, runData: [string, number]) {
@@ -11,4 +11,4 @@ async function runWorkspace(workspace: IntegerWorkspace, runData: [string, numbe
     }
 }
 
-setupWorker(new IntegerWorkspace(), runWorkspace);
+setupCursiveWorker(new IntegerWorkspace(), runWorkspace);

@@ -1,7 +1,7 @@
 import { IUserProcessData, IWorkspaceData } from 'cursive-ui';
 import { StructuredCloneable } from './StructuredCloneable';
 
-export class RuntimeHandler {
+export class CursiveWorkerRuntime {
     private loadPromise: Promise<IWorkspaceData>;
     private loadResolve?: (value: IWorkspaceData | PromiseLike<IWorkspaceData> | undefined) => void;
 
